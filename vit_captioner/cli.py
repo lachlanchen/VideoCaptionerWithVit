@@ -42,6 +42,7 @@ def caption_image(args):
 def caption_video(args):
     """Convert video to captions and generate SRT file"""
     try:
+        # Pass the verbose flag to the converter
         converter = VideoToCaption(args.video_path, num_frames=args.num_frames)
         converter.convert()
     except Exception as e:
@@ -94,6 +95,8 @@ def main():
     caption_video_parser = subparsers.add_parser("caption-video", help="Convert video to captions")
     caption_video_parser.add_argument("-V", "--video_path", type=str, required=True, help="Path to the video file")
     caption_video_parser.add_argument("-N", "--num_frames", type=int, default=10, help="Number of frames to caption")
+    # Fix: Add verbose flag for caption-video command
+    caption_video_parser.add_argument("-v", "--verbose", action="store_true", help="Show verbose output")
     
     # Parser for the find-timestamps command
     find_timestamps_parser = subparsers.add_parser("find-timestamps", help="Find matching timestamps for keyframes")

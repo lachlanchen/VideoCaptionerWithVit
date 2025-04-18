@@ -3,6 +3,9 @@ captioning/image.py - Module for generating captions for images using ViT-GPT2 m
 """
 
 import os
+import matplotlib
+# Set matplotlib to use non-interactive backend to avoid GUI threading issues
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from PIL import Image
 import torch
@@ -87,6 +90,7 @@ class ImageCaptioner:
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
+            # Create a new figure (avoid GUI thread issues by using 'Agg' backend)
             plt.figure(figsize=(10, 10))
             plt.imshow(img)
             plt.title(caption)
@@ -98,8 +102,9 @@ class ImageCaptioner:
             with open(caption_data_path, 'w') as f:
                 f.write(caption)
                 
-            plt.clf()
+            # Important: close the figure to release resources
             plt.close()
+            
             print(f"Image saved to {img_save_path}")
             print(f"Caption data saved to {caption_data_path}")
         except Exception as e:

@@ -1,5 +1,8 @@
 # ViT Captioner
 
+[![PyPI version](https://badge.fury.io/py/vit-captioner.svg)](https://badge.fury.io/py/vit-captioner)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A Python package for extracting keyframes from videos and generating captions using the ViT-GPT2 model.
 
 ## Features
@@ -13,13 +16,7 @@ A Python package for extracting keyframes from videos and generating captions us
 ## Installation
 
 ```bash
-# Install from PyPI
 pip install vit-captioner
-
-# Or install from source
-git clone https://github.com/your-username/vit-captioner.git
-cd vit-captioner
-pip install -e .
 ```
 
 ## Command Line Usage
@@ -63,13 +60,6 @@ caption = captioner.predict_caption("/path/to/image.jpg")
 converter = VideoToCaption("/path/to/video.mp4", num_frames=10)
 converter.convert()
 ```
-
-## Output
-
-- All outputs include timestamp suffixes for versioning
-- Captioned images are saved alongside their original images
-- SRT and JSON outputs for video captions
-- Visualization outputs are automatically saved with their data
 
 ## Requirements
 

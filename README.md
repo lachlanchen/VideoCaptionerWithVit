@@ -9,6 +9,8 @@ A Python package for extracting keyframes from videos and generating captions us
 - Match keyframes with timestamps in a video
 - Convert videos to SRT subtitle files with captions
 - Visualize keyframes and timeline data
+- Performance optimized with smart resource management
+- Thread-safe image processing and visualization
 
 ## Installation
 
@@ -17,8 +19,8 @@ A Python package for extracting keyframes from videos and generating captions us
 pip install vit-captioner
 
 # Or install from source
-git clone https://github.com/your-username/vit-captioner.git
-cd vit-captioner
+git clone https://github.com/lachlanchen/VideoCaptionerWithVit.git
+cd VideoCaptionerWithVit
 pip install -e .
 ```
 
@@ -36,8 +38,9 @@ vit-captioner caption-image -I /path/to/image.jpg
 
 ### Convert video to captions:
 ```bash
-vit-captioner caption-video -V /path/to/video.mp4 -N 10
+vit-captioner caption-video -V /path/to/video.mp4 -N 10 -v
 ```
+The `-v` flag enables verbose output with progress bars.
 
 ### Find matching timestamps for keyframes:
 ```bash
@@ -60,7 +63,8 @@ captioner = ImageCaptioner()
 caption = captioner.predict_caption("/path/to/image.jpg")
 
 # Convert video to captions
-converter = VideoToCaption("/path/to/video.mp4", num_frames=10)
+# Note: verbose flag enables progress bars
+converter = VideoToCaption("/path/to/video.mp4", num_frames=10, verbose=True)
 converter.convert()
 ```
 
@@ -70,6 +74,15 @@ converter.convert()
 - Captioned images are saved alongside their original images
 - SRT and JSON outputs for video captions
 - Visualization outputs are automatically saved with their data
+- Caption data is saved alongside captioned images for easy access
+
+## Performance Optimizations
+
+- Smart resource management with proper cleanup
+- Single model loading for multiple frames (improved memory usage)
+- Thread-safe image processing with error fallbacks
+- Progress bars for tracking long-running operations
+- Limited number of concurrent workers to prevent memory issues
 
 ## Requirements
 
@@ -80,6 +93,15 @@ converter.convert()
 - Katna
 - Matplotlib
 - tqdm
+
+## Testing
+
+The package includes comprehensive test scripts to verify functionality:
+
+```bash
+# Run the enhanced test script with performance metrics
+python test_vit_captioner_enhanced.py -v
+```
 
 ## License
 

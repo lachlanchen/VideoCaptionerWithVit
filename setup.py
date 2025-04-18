@@ -1,14 +1,18 @@
 from setuptools import setup, find_packages
 import os
 
+# Import version from version.py
+from vit_captioner.version import VERSION
+
+
 # Use PyPI-specific README if available, otherwise use the standard README
 readme_path = "README_PYPI.md" if os.path.exists("README_PYPI.md") else "README.md"
 
 setup(
     name="vit-captioner",  # Use hyphen instead of underscore for PyPI
-    version="0.1.1",  # Use explicit versioning - increment this for each release
+    version=VERSION,  # Use explicit versioning - increment this for each release
     author="User",
-    author_email="user@example.com",
+    author_email="lach@lazyingoronlyideas.art",
     description="A package for extracting keyframes from videos and generating captions using ViT-GPT2 model",
     long_description=open(readme_path).read(),
     long_description_content_type="text/markdown",

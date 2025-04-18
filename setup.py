@@ -6,7 +6,7 @@ readme_path = "README_PYPI.md" if os.path.exists("README_PYPI.md") else "README.
 
 setup(
     name="vit-captioner",  # Use hyphen instead of underscore for PyPI
-    version="0.1.0",  # Use explicit versioning - increment this for each release
+    version="0.1.1",  # Use explicit versioning - increment this for each release
     author="User",
     author_email="user@example.com",
     description="A package for extracting keyframes from videos and generating captions using ViT-GPT2 model",

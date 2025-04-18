@@ -2,7 +2,7 @@
 ViT Captioner - A toolkit for video/image captioning using ViT-GPT2
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from .keyframes import KeyFrameExtractor, VideoKeyframeMatcher
 from .captioning import ImageCaptioner, VideoToCaption

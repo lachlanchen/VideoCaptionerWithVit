@@ -1,22 +1,18 @@
 from setuptools import setup, find_packages
-import datetime
 import os
-
-# Get the current date and time for versioning
-current_date = datetime.datetime.now().strftime("%Y%m%d_%H%M")
 
 # Use PyPI-specific README if available, otherwise use the standard README
 readme_path = "README_PYPI.md" if os.path.exists("README_PYPI.md") else "README.md"
 
 setup(
-    name="vit_captioner",
-    version=f"0.1.{current_date}",
+    name="vit-captioner",  # Use hyphen instead of underscore for PyPI
+    version="0.1.0",  # Use explicit versioning - increment this for each release
     author="User",
     author_email="user@example.com",
     description="A package for extracting keyframes from videos and generating captions using ViT-GPT2 model",
     long_description=open(readme_path).read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/user/vit-captioner",
+    url="https://github.com/lachlanchen/VideoCaptionerWithVit",
     packages=find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
@@ -46,8 +42,12 @@ setup(
     },
     include_package_data=True,
     keywords="video, captioning, ai, machine learning, ViT, GPT2, transformers",
+    # project_urls={
+    #     "Bug Reports": "https://github.com/user/vit-captioner/issues",
+    #     "Source": "https://github.com/user/vit-captioner",
+    # },
     project_urls={
-        "Bug Reports": "https://github.com/user/vit-captioner/issues",
-        "Source": "https://github.com/user/vit-captioner",
-    },
+        "Bug Reports": "https://github.com/lachlanchen/VideoCaptionerWithVit/issues",
+        "Source": "https://github.com/lachlanchen/VideoCaptionerWithVit",
+    },   
 )

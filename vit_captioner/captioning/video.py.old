@@ -8,21 +8,17 @@ import json
 import concurrent.futures
 import traceback
 import datetime
-import warnings
 from tqdm import tqdm
 from ..keyframes.extractor import KeyFrameExtractor
 from .image import ImageCaptioner
 
-# Filter out transformer warnings
-warnings.filterwarnings("ignore", message="Some weights of the model checkpoint.*")
-
 class VideoToCaption:
-    def __init__(self, video_path, num_frames=10, verbose=False):
+    def __init__(self, video_path, num_frames=10):
         try:
             self.original_video_path = video_path
             self.video_path = self.normalize_video_path(video_path)
+            
             self.num_frames = num_frames
-            self.verbose = verbose
             
             # Add timestamp to output directories and files
             timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -32,9 +28,6 @@ class VideoToCaption:
             
             os.makedirs(self.frames_dir, exist_ok=True)
             self.duration = None  # Initialize duration
-            
-            # Create a single captioner instance that will be reused
-            self.captioner = None
         except Exception as e:
             traceback.print_exc()
             raise Exception(f"Error initializing VideoToCaption: {str(e)}")
@@ -86,7 +79,7 @@ class VideoToCaption:
             timestamps = [i * (self.duration / self.num_frames) for i in range(self.num_frames)]
             frames = []
             
-            for i, timestamp in enumerate(tqdm(timestamps, desc="Extracting frames", disable=not self.verbose)):
+            for i, timestamp in enumerate(tqdm(timestamps, desc="Extracting frames")):
                 cap.set(cv2.CAP_PROP_POS_FRAMES, int(fps * timestamp))
                 ret, frame = cap.read()
                 if ret:
@@ -124,19 +117,13 @@ class VideoToCaption:
             print(f"Error extracting frames: {str(e)}")
             return []
 
-    def initialize_captioner(self):
-        """Initialize the image captioner if not already initialized"""
-        if self.captioner is None:
-            self.captioner = ImageCaptioner()
-        return self.captioner
-
     def caption_frame(self, frame_data):
         """Generate caption for a single frame"""
         try:
             frame_path, _, _ = frame_data
-            # Reuse the same captioner instance to avoid loading the model multiple times
-            captioner = self.initialize_captioner()
+            captioner = ImageCaptioner()
             caption = captioner.predict_caption(frame_path)
+            del captioner  # Ensure the instance is deleted after use
             return caption
         except Exception as e:
             traceback.print_exc()
@@ -153,16 +140,10 @@ class VideoToCaption:
                 
             srt_entries = []
             
-            # Initialize captioner once
-            self.initialize_captioner()
-            
             print("Generating captions for extracted frames...")
-            # Use a smaller number of workers to prevent memory issues
-            max_workers = min(4, len(frames))
-            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = {executor.submit(self.caption_frame, frame): frame for frame in frames}
-                for future in tqdm(concurrent.futures.as_completed(futures), total=len(frames), 
-                                  desc="Captioning frames", disable=not self.verbose):
+                for future in tqdm(concurrent.futures.as_completed(futures), total=len(frames), desc="Captioning frames"):
                     frame_path, start_time, end_time = futures[future]
                     caption = future.result()
                     srt_entries.append({
@@ -172,7 +153,6 @@ class VideoToCaption:
                         'text': caption
                     })
 
-            # Sort entries by index
             srt_entries.sort(key=lambda x: x['index'])
             self.save_srt_file(srt_entries)
             self.save_json_file(srt_entries)
@@ -184,11 +164,6 @@ class VideoToCaption:
             traceback.print_exc()
             print(f"Error converting video to captions: {str(e)}")
             return False
-        finally:
-            # Clean up resources
-            if self.captioner is not None:
-                del self.captioner
-                self.captioner = None
 
     def format_time(self, seconds):
         """Format time in SRT format: HH:MM:SS,mmm"""

@@ -13,16 +13,8 @@ import numpy as np
 import traceback
 import random
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
-import warnings
-
-# Filter out transformer warnings
-warnings.filterwarnings("ignore", category=UserWarning, 
-                       message="Some weights of the model checkpoint.*")
 
 class ImageCaptioner:
-    # Class variable to track if warnings have been displayed
-    _showed_warnings = False
-    
     def __init__(self, model_name="nlpconnect/vit-gpt2-image-captioning"):
         try:
             # Set random seed for reproducibility
@@ -94,46 +86,27 @@ class ImageCaptioner:
             # Adjust path to use current directory if it's empty
             output_dir = os.path.dirname(image_path) or '.'
             img_save_path = os.path.join(output_dir, f'{os.path.splitext(os.path.basename(image_path))[0]}_captioned.jpg')
-            caption_data_path = os.path.join(output_dir, f'{os.path.splitext(os.path.basename(image_path))[0]}_caption_data.txt')
             
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir)
 
-            # Save the caption data separately
+            # Create a new figure (avoid GUI thread issues by using 'Agg' backend)
+            plt.figure(figsize=(10, 10))
+            plt.imshow(img)
+            plt.title(caption)
+            plt.axis("off")
+            plt.savefig(img_save_path, bbox_inches="tight")
+            
+            # Save the caption data alongside the figure
+            caption_data_path = os.path.join(output_dir, f'{os.path.splitext(os.path.basename(image_path))[0]}_caption_data.txt')
             with open(caption_data_path, 'w') as f:
                 f.write(caption)
+                
+            # Important: close the figure to release resources
+            plt.close()
             
-            # Thread-safe figure creation
-            try:
-                # Create a new figure and make sure it's not shared between threads
-                plt.figure(figsize=(10, 10), clear=True)
-                plt.clf()  # Clear the figure to be sure
-                
-                # Convert PIL Image to numpy array if needed
-                if isinstance(img, Image.Image):
-                    img_array = np.array(img)
-                    plt.imshow(img_array)
-                else:
-                    plt.imshow(img)
-                    
-                plt.title(caption)
-                plt.axis("off")
-                plt.tight_layout()
-                plt.savefig(img_save_path, bbox_inches="tight")
-                
-                # Immediately close the figure to release resources
-                plt.close()
-                
-                print(f"Image saved to {img_save_path}")
-                print(f"Caption data saved to {caption_data_path}")
-            except Exception as e:
-                # If matplotlib fails, save just the original image
-                if isinstance(img, Image.Image):
-                    img.save(img_save_path)
-                    print(f"Saved original image to {img_save_path} (captioning failed: {str(e)})")
-                else:
-                    raise e
-                
+            print(f"Image saved to {img_save_path}")
+            print(f"Caption data saved to {caption_data_path}")
         except Exception as e:
             traceback.print_exc()
             print(f"Error saving captioned image: {str(e)}")

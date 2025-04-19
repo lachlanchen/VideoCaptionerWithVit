@@ -5,7 +5,7 @@ A Python package for extracting keyframes from videos and generating captions us
 [![PyPI version](https://badge.fury.io/py/vit-captioner.svg)](https://badge.fury.io/py/vit-captioner)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-![Sample Captioned Image](demo/pork_0_captioned.jpg)
+![Sample Captioned Image](demo/vit-captioner.png)
 
 ## Features
 

@@ -1,13 +1,7 @@
-
-
 import os
-import matplotlib
-# Use non-interactive backend to avoid GUI thread issues
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from PIL import Image
 import torch
-import traceback
 from transformers import VisionEncoderDecoderModel, ViTImageProcessor, AutoTokenizer
 
 class ImageCaptioner:
@@ -23,7 +17,7 @@ class ImageCaptioner:
         
         # Set generation kwargs
         self.gen_kwargs = {"max_length": 16, "num_beams": 4}
-        
+
     def predict_caption(self, image_path, save_image=True):
         # Load and process image
         image = Image.open(image_path).convert("RGB")
@@ -35,16 +29,16 @@ class ImageCaptioner:
         output_ids = self.model.generate(pixel_values, **self.gen_kwargs)
         captions = self.tokenizer.batch_decode(output_ids, skip_special_tokens=True)
         caption = captions[0].strip()
-        
+
         if save_image:
             try:
                 self.save_captioned_image(image, caption, image_path)
             except Exception as e:
-                traceback.print_exc()
                 print("Error in saving captioned image: ", str(e))
-        
+
+
         return caption
-    
+
     def save_captioned_image(self, img, caption, image_path):
         # Adjust path to use current directory if it's empty
         output_dir = os.path.dirname(image_path) or '.'
@@ -52,22 +46,17 @@ class ImageCaptioner:
         
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        
-        # Create a new figure for each image to avoid state conflicts
-        plt.figure(figsize=(10, 10))
+
         plt.imshow(img)
         plt.title(caption)
         plt.axis("off")
         plt.savefig(img_save_path, bbox_inches="tight")
-        plt.close('all')  # Ensure all resources are properly cleaned up
-        
+        plt.clf()
+        plt.close()
         print(f"Image saved to {img_save_path}")
 
 # Example usage
 if __name__ == "__main__":
-    # Set random seed for reproducibility
-    torch.manual_seed(23)
-    
     image_path = 'IMG_9421_2024_04_23_07_52_02_COMPLETED_cover_plain.jpg'  # Adjust this path as needed
     captioner = ImageCaptioner()
     caption = captioner.predict_caption(image_path, save_image=True)

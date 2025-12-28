@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="figs/banner.png" alt="LazyingArt banner" />
+</p>
+
 # ViT Captioner
 
 A Python package for extracting keyframes from videos and generating captions using the ViT-GPT2 model.

@@ -2,12 +2,10 @@
 utils/visualization.py - Module for visualization utilities
 """
 
-import matplotlib.pyplot as plt
 import os
 import traceback
 import datetime
 import json
-import numpy as np
 
 def visualize_keyframes(keyframes_folder, captions=None, save_path=None):
     """
@@ -23,6 +21,9 @@ def visualize_keyframes(keyframes_folder, captions=None, save_path=None):
     """
     try:
         import cv2
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
         from matplotlib.gridspec import GridSpec
         
         # List all keyframes in the folder
@@ -94,6 +95,9 @@ def visualize_timeline(timestamps, captions, video_duration, save_path=None):
         Path to the saved visualization
     """
     try:
+        import matplotlib
+        matplotlib.use('Agg')
+        import matplotlib.pyplot as plt
         plt.figure(figsize=(15, 5))
         
         # Create the timeline

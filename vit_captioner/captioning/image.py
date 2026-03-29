@@ -3,11 +3,10 @@ captioning/image.py - Module for generating captions for images using ViT-GPT2 m
 """
 
 import os
-import matplotlib
-# Set matplotlib to use non-interactive backend to avoid GUI threading issues
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+import textwrap
 from PIL import Image
+from PIL import ImageDraw
+from PIL import ImageFont
 import torch
 import numpy as np
 import traceback
@@ -103,34 +102,53 @@ class ImageCaptioner:
             with open(caption_data_path, 'w') as f:
                 f.write(caption)
             
-            # Thread-safe figure creation
             try:
-                # Create a new figure and make sure it's not shared between threads
-                plt.figure(figsize=(10, 10), clear=True)
-                plt.clf()  # Clear the figure to be sure
-                
-                # Convert PIL Image to numpy array if needed
                 if isinstance(img, Image.Image):
-                    img_array = np.array(img)
-                    plt.imshow(img_array)
+                    base_image = img.convert("RGBA")
                 else:
-                    plt.imshow(img)
-                    
-                plt.title(caption)
-                plt.axis("off")
-                plt.tight_layout()
-                plt.savefig(img_save_path, bbox_inches="tight")
-                
-                # Immediately close the figure to release resources
-                plt.close()
-                
+                    base_image = Image.fromarray(img).convert("RGBA")
+
+                overlay = Image.new("RGBA", base_image.size, (0, 0, 0, 0))
+                draw = ImageDraw.Draw(overlay)
+                font = ImageFont.load_default()
+                wrap_width = max(20, base_image.width // 12)
+                wrapped_caption = textwrap.fill(caption, width=wrap_width)
+                padding = 12
+                spacing = 4
+
+                try:
+                    bbox = draw.multiline_textbbox((0, 0), wrapped_caption, font=font, spacing=spacing)
+                    text_height = bbox[3] - bbox[1]
+                except AttributeError:
+                    _text_width, text_height = draw.multiline_textsize(
+                        wrapped_caption,
+                        font=font,
+                        spacing=spacing,
+                    )
+
+                box_height = text_height + (padding * 2)
+                box_top = max(0, base_image.height - box_height)
+                draw.rectangle(
+                    (0, box_top, base_image.width, base_image.height),
+                    fill=(0, 0, 0, 160),
+                )
+                draw.multiline_text(
+                    (padding, box_top + padding),
+                    wrapped_caption,
+                    fill=(255, 255, 255, 255),
+                    font=font,
+                    spacing=spacing,
+                )
+
+                composed = Image.alpha_composite(base_image, overlay).convert("RGB")
+                composed.save(img_save_path, quality=95)
                 print(f"Image saved to {img_save_path}")
                 print(f"Caption data saved to {caption_data_path}")
             except Exception as e:
-                # If matplotlib fails, save just the original image
+                # If caption overlay fails, save the original image instead.
                 if isinstance(img, Image.Image):
                     img.save(img_save_path)
-                    print(f"Saved original image to {img_save_path} (captioning failed: {str(e)})")
+                    print(f"Saved original image to {img_save_path} (caption overlay failed: {str(e)})")
                 else:
                     raise e
                 

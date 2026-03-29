@@ -6,13 +6,7 @@ import argparse
 import os
 import sys
 import traceback
-import cv2
 import warnings
-from .keyframes.extractor import KeyFrameExtractor
-from .keyframes.matcher import VideoKeyframeMatcher
-from .captioning.image import ImageCaptioner
-from .captioning.video import VideoToCaption
-from .utils.visualization import visualize_keyframes, visualize_timeline
 
 # Filter out transformer warnings
 warnings.filterwarnings("ignore", message="Some weights of the model checkpoint.*")
@@ -20,6 +14,9 @@ warnings.filterwarnings("ignore", message="Some weights of the model checkpoint.
 def extract_keyframes(args):
     """Extract keyframes from a video"""
     try:
+        from .keyframes.extractor import KeyFrameExtractor
+        from .utils.visualization import visualize_keyframes
+
         extractor = KeyFrameExtractor(args.video_path)
         output_folder = extractor.extract_key_frames(args.video_path, args.num_key_frames)
         
@@ -35,6 +32,8 @@ def extract_keyframes(args):
 def caption_image(args):
     """Generate caption for an image"""
     try:
+        from .captioning.image import ImageCaptioner
+
         captioner = ImageCaptioner()
         caption = captioner.predict_caption(args.image_path, save_image=True)
         print(f"Caption: {caption}")
@@ -46,6 +45,8 @@ def caption_image(args):
 def caption_video(args):
     """Convert video to captions and generate SRT file"""
     try:
+        from .captioning.video import VideoToCaption
+
         # Pass the verbose flag to the converter
         converter = VideoToCaption(args.video_path, num_frames=args.num_frames, verbose=args.verbose)
         converter.convert()
@@ -57,6 +58,10 @@ def caption_video(args):
 def find_timestamps(args):
     """Find matching timestamps for keyframes"""
     try:
+        import cv2
+        from .keyframes.matcher import VideoKeyframeMatcher
+        from .utils.visualization import visualize_timeline
+
         matcher = VideoKeyframeMatcher(args.video_path, args.keyframes_folder)
         if matcher.load_video_to_array():
             results = matcher.process_keyframes()

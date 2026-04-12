@@ -39,6 +39,10 @@ setup(
         "matplotlib",
         "tqdm",
         "Katna",
+        "psutil",
+        "ffmpy",
+        "imageio-ffmpeg",
+        "imutils",
     ],
     entry_points={
         "console_scripts": [
